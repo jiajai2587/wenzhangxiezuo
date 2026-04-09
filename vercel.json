@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/self_media_platform.html"
+    }
+  ]
+}

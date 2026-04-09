@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自媒体多工作平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-line-chart text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">自媒体多工作平台</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100">
+                    <i class="fa fa-moon-o text-gray-600"></i>
+                </button>
+                <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition">
+                    <i class="fa fa-save mr-1"></i> 保存项目
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- 标签页导航 -->
+        <div class="mb-6 border-b border-gray-200">
+            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="tab-navigation" role="tablist">
+                <li class="mr-2" role="presentation">
+                    <button class="inline-block p-4 border-b-2 border-primary text-primary rounded-t-lg active" id="content-tab" data-tab="content" type="button" role="tab" aria-controls="content" aria-selected="true">
+                        <i class="fa fa-file-text-o mr-1"></i> 内容管理
+                    </button>
+                </li>
+                <li class="mr-2" role="presentation">
+                    <button class="inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg" id="ai-detect-tab" data-tab="ai-detect" type="button" role="tab" aria-controls="ai-detect" aria-selected="false">
+                        <i class="fa fa-robot mr-1"></i> AI检测
+                    </button>
+                </li>
+                <li class="mr-2" role="presentation">
+                    <button class="inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg" id="traffic-tab" data-tab="traffic" type="button" role="tab" aria-controls="traffic" aria-selected="false">
+                        <i class="fa fa-line-chart mr-1"></i> 流量预测
+                    </button>
+                </li>
+                <li class="mr-2" role="presentation">
+                    <button class="inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg" id="analysis-tab" data-tab="analysis" type="button" role="tab" aria-controls="analysis" aria-selected="false">
+                        <i class="fa fa-bar-chart mr-1"></i> 综合分析
+                    </button>
+                </li>
+                <li role="presentation">
+                    <button class="inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg" id="tools-tab" data-tab="tools" type="button" role="tab" aria-controls="tools" aria-selected="false">
+                        <i class="fa fa-wrench mr-1"></i> 工具集
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 标签页内容 -->
+        <div class="tab-content">
+            <!-- 内容管理 -->
+            <div class="tab-pane active" id="content">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 左侧内容编辑区 -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-lg shadow p-6 mb-6">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                                <input type="text" id="article-title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="输入文章标题">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">内容</label>
+                                <textarea id="article-content" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary h-96" placeholder="输入文章内容"></textarea>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button id="generate-content" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition">
+                                    <i class="fa fa-magic mr-1"></i> AI生成内容
+                                </button>
+                                <button id="generate-image" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-gray-600 transition">
+                                    <i class="fa fa-image mr-1"></i> 生成图片
+                                </button>
+                                <button id="format-content" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                                    <i class="fa fa-indent mr-1"></i> 排版优化
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 生成图片预览 -->
+                        <div id="image-preview" class="bg-white rounded-lg shadow p-6 mb-6 hidden">
+                            <h3 class="text-lg font-semibold mb-4">图片预览</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="image-grid">
+                                <!-- 图片将在这里动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧设置区 -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow p-6 mb-6">
+                            <h3 class="text-lg font-semibold mb-4">发布设置</h3>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">选择平台</label>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="platform-wechat" class="platform-checkbox" value="wechat">
+                                        <label for="platform-wechat" class="ml-2 text-sm text-gray-700">微信公众号</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="platform-weibo" class="platform-checkbox" value="weibo">
+                                        <label for="platform-weibo" class="ml-2 text-sm text-gray-700">微博</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="platform-toutiao" class="platform-checkbox" value="toutiao">
+                                        <label for="platform-toutiao" class="ml-2 text-sm text-gray-700">今日头条</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="platform-douyin" class="platform-checkbox" value="douyin">
+                                        <label for="platform-douyin" class="ml-2 text-sm text-gray-700">抖音</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="platform-kuaishou" class="platform-checkbox" value="kuaishou">
+                                        <label for="platform-kuaishou" class="ml-2 text-sm text-gray-700">快手</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                                <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <option value="">选择分类</option>
+                                    <option value="tech">科技</option>
+                                    <option value="life">生活</option>
+                                    <option value="entertainment">娱乐</option>
+                                    <option value="finance">财经</option>
+                                    <option value="education">教育</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">标签</label>
+                                <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="输入标签，用逗号分隔">
+                            </div>
+                            <div>
+                                <button class="w-full px-4 py-2 bg-success text-white rounded-lg hover:bg-green-600 transition">
+                                    <i class="fa fa-paper-plane mr-1"></i> 发布
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- AI模型选择 -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold mb-4">AI模型选择</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <input type="radio" id="model-bright" name="ai-model" value="bright" checked>
+                                    <label for="model-bright" class="ml-2 text-sm text-gray-700">明亮模型</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="model-dark" name="ai-model" value="dark">
+                                    <label for="model-dark" class="ml-2 text-sm text-gray-700">暗黑模型</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="model-traffic" name="ai-model" value="traffic">
+                                    <label for="model-traffic" class="ml-2 text-sm text-gray-700">流量推荐模型</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI检测 -->
+            <div class="tab-pane hidden" id="ai-detect">
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">AI检测</h3>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">检测内容</label>
+                        <textarea id="detect-content" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary h-64" placeholder="输入需要检测的内容"></textarea>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <button id="full-detect" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition">
+                            <i class="fa fa-check-circle mr-1"></i> 全段检测
+                        </button>
+                        <button id="segment-detect" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-gray-600 transition">
+                            <i class="fa fa-list-ol mr-1"></i> 分段检测
+                        </button>
+                        <button id="copy-from-content" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                            <i class="fa fa-copy mr-1"></i> 从内容管理复制
+                        </button>
+                    </div>
+
+                    <!-- 检测结果 -->
+                    <div id="ai-detect-results" class="space-y-6">
+                        <!-- AI比例检测 -->
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">AI比例检测</h4>
+                            <div class="flex items-center mb-2">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: 65%"></div>
+                                </div>
+                                <span class="ml-2 text-sm font-medium">65%</span>
+                            </div>
+                            <p class="text-sm text-gray-600">该内容AI生成比例较高，建议适当修改以增加原创性。</p>
+                        </div>
+
+                        <!-- 分段检测结果 -->
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">分段检测</h4>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gray-50 rounded">
+                                    <p class="text-sm mb-1">段落 1: 这是第一段内容，主要介绍了产品的基本信息。</p>
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-primary h-2 rounded-full" style="width: 70%"></div>
+                                        </div>
+                                        <span class="ml-2 text-xs">70%</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded">
+                                    <p class="text-sm mb-1">段落 2: 这是第二段内容，详细说明了产品的功能特点。</p>
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-primary h-2 rounded-full" style="width: 55%"></div>
+                                        </div>
+                                        <span class="ml-2 text-xs">55%</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded">
+                                    <p class="text-sm mb-1">段落 3: 这是第三段内容，分享了用户使用体验。</p>
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-primary h-2 rounded-full" style="width: 40%"></div>
+                                        </div>
+                                        <span class="ml-2 text-xs">40%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 同质化检测 -->
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">同质化检测</h4>
+                            <p class="text-sm text-gray-600 mb-2">相似度: <span class="font-medium">32%</span></p>
+                            <p class="text-sm text-gray-600">该内容与现有内容相似度较低，具有一定的原创性。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 流量预测 -->
+            <div class="tab-pane hidden" id="traffic">
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">流量预测</h3>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">文章标题</label>
+                        <input type="text" id="traffic-title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="输入文章标题">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">选择平台</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <input type="radio" id="traffic-platform-wechat" name="traffic-platform" value="wechat" checked>
+                                <label for="traffic-platform-wechat" class="ml-2 text-sm text-gray-700">微信公众号</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" id="traffic-platform-weibo" name="traffic-platform" value="weibo">
+                                <label for="traffic-platform-weibo" class="ml-2 text-sm text-gray-700">微博</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" id="traffic-platform-toutiao" name="traffic-platform" value="toutiao">
+                                <label for="traffic-platform-toutiao" class="ml-2 text-sm text-gray-700">今日头条</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="predict-traffic" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition mb-6">
+                        <i class="fa fa-line-chart mr-1"></i> 预测流量
+                    </button>
+
+                    <!-- 流量预测结果 -->
+                    <div id="traffic-results" class="space-y-4">
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">预测结果</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">预计阅读量</p>
+                                    <p class="text-2xl font-bold text-primary">12,500</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">预计点赞数</p>
+                                    <p class="text-2xl font-bold text-success">850</p>
+                                </div>
+                                <div class="bg-yellow-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">预计评论数</p>
+                                    <p class="text-2xl font-bold text-warning">230</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">流量趋势预测</h4>
+                            <div class="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <p class="text-gray-500">流量趋势图表</p>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">优化建议</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                <li>标题可以更吸引人，建议添加数字或疑问词</li>
+                                <li>内容长度适中，建议保持在1500-2000字</li>
+                                <li>建议在文章开头添加引人入胜的故事或数据</li>
+                                <li>增加互动元素，如投票、问答等</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 综合分析 -->
+            <div class="tab-pane hidden" id="analysis">
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">综合检测报告</h3>
+                    <button id="comprehensive-analysis" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition mb-6">
+                        <i class="fa fa-check-square-o mr-1"></i> 开始综合检测
+                    </button>
+
+                    <!-- 检测结果 -->
+                    <div id="comprehensive-results" class="space-y-6">
+                        <!-- 内容逻辑性检测 -->
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">内容逻辑与连贯性检测</h4>
+                            <p class="text-sm text-gray-600 mb-3">逻辑评分: <span class="font-medium">85/100</span></p>
+                            <div class="space-y-2">
+                                <p class="text-sm"><span class="font-medium">逻辑结构:</span> 文章结构清晰，层次分明</p>
+                                <p class="text-sm"><span class="font-medium">过渡衔接:</span> 段落之间过渡自然，逻辑连贯</p>
+                                <p class="text-sm"><span class="font-medium">论证充分:</span> 观点有足够的论据支持</p>
+                                <p class="text-sm"><span class="font-medium">结论合理:</span> 结论与前文内容一致</p>
+                            </div>
+                            <div class="mt-3 text-sm text-gray-600">
+                                <p><strong>说明:</strong> 逻辑评分代表文章内容的逻辑连贯性和结构合理性。分数越高，说明文章逻辑越清晰，读者更容易理解。</p>
+                            </div>
+                        </div>
+
+                        <!-- 敏感和违规检测 -->
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">敏感和违规检测</h4>
+                            <p class="text-sm text-gray-600 mb-3">检测结果: <span class="font-medium text-success">未发现敏感或违规内容</span></p>
+                            <div id="sensitive-content" class="mt-3 hidden">
+                                <p class="text-sm font-medium mb-1">触发内容:</p>
+                                <div class="bg-red-50 p-3 rounded text-sm text-red-700">
+                                    <p>示例: 这是一段包含敏感词的内容，需要进行修改。</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-sm text-gray-600">
+                                <p><strong>说明:</strong> 该检测会识别文章中可能存在的敏感词、违规内容等，确保内容符合平台规定。</p>
+                            </div>
+                        </div>
+
+                        <!-- 营销文检测 -->
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">营销文与广告浓度检测</h4>
+                            <p class="text-sm text-gray-600 mb-3">广告浓度: <span class="font-medium">15%</span></p>
+                            <p class="text-sm text-gray-600 mb-3">检测结果: <span class="font-medium text-success">广告浓度在合理范围内</span></p>
+                            <div id="marketing-content" class="mt-3 hidden">
+                                <p class="text-sm font-medium mb-1">触发内容:</p>
+                                <div class="bg-yellow-50 p-3 rounded text-sm text-yellow-700">
+                                    <p>示例: 这款产品非常好用，大家都应该购买。</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-sm text-gray-600">
+                                <p><strong>说明:</strong> 广告浓度代表文章中营销内容的占比。过高的广告浓度可能影响用户体验，建议保持在20%以下。</p>
+                            </div>
+                        </div>
+
+                        <!-- 一键优化清单 -->
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-medium mb-2">一键优化清单</h4>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <input type="checkbox" class="mt-1 mr-2">
+                                    <span class="text-sm">优化标题，增加吸引力</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <input type="checkbox" class="mt-1 mr-2">
+                                    <span class="text-sm">调整文章结构，提高逻辑性</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <input type="checkbox" class="mt-1 mr-2">
+                                    <span class="text-sm">增加图片，提高视觉效果</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <input type="checkbox" class="mt-1 mr-2">
+                                    <span class="text-sm">优化开头和结尾，提高留存率</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <input type="checkbox" class="mt-1 mr-2">
+                                    <span class="text-sm">调整关键词密度，提高SEO效果</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <input type="checkbox" class="mt-1 mr-2">
+                                    <span class="text-sm">检查并修正语法错误</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <input type="checkbox" class="mt-1 mr-2">
+                                    <span class="text-sm">优化段落长度，提高可读性</span>
+                                </li>
+                            </ul>
+                            <button class="mt-4 px-4 py-2 bg-success text-white rounded-lg hover:bg-green-600 transition">
+                                <i class="fa fa-magic mr-1"></i> 应用全部优化
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 工具集 -->
+            <div class="tab-pane hidden" id="tools">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- AI润色 -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">AI润色</h3>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">需要润色的内容</label>
+                            <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary h-48" placeholder="输入需要润色的内容"></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">润色风格</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option value="professional">专业正式</option>
+                                <option value="casual">轻松随意</option>
+                                <option value="academic">学术严谨</option>
+                                <option value="marketing">营销推广</option>
+                            </select>
+                        </div>
+                        <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition">
+                            <i class="fa fa-pencil mr-1"></i> 开始润色
+                        </button>
+                    </div>
+
+                    <!-- 热门文章采集 -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">热门文章采集</h3>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">关键词</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="输入关键词">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">平台</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option value="all">全部平台</option>
+                                <option value="wechat">微信公众号</option>
+                                <option value="weibo">微博</option>
+                                <option value="toutiao">今日头条</option>
+                            </select>
+                        </div>
+                        <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition">
+                            <i class="fa fa-search mr-1"></i> 开始采集
+                        </button>
+                    </div>
+
+                    <!-- API接口设置 -->
+                    <div class="bg-white rounded-lg shadow p-6 md:col-span-2">
+                        <h3 class="text-lg font-semibold mb-4">API接口设置</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">API密钥</label>
+                                <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="输入API密钥">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">API地址</label>
+                                <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary" placeholder="输入API地址">
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">接口文档</label>
+                            <div class="bg-gray-50 p-4 rounded-lg text-sm font-mono overflow-x-auto">
+                                <pre>// 示例API调用
+POST /api/ai/detect
+{
+  "content": "文章内容",
+  "type": "full" // full或segment
+}
+
+// 响应示例
+{
+  "ai_ratio": 0.65,
+  "segments": [
+    {"text": "段落1", "ai_ratio": 0.7},
+    {"text": "段落2", "ai_ratio": 0.55}
+  ],
+  "homogeneity": 0.32
+}</pre>
+                            </div>
+                        </div>
+                        <button class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition">
+                            <i class="fa fa-save mr-1"></i> 保存API设置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 使用说明模态框 -->
+    <div id="usage-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">使用说明</h2>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">1. 内容管理</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                            <li>在"标题"输入框中输入文章标题</li>
+                            <li>在"内容"文本框中输入文章内容</li>
+                            <li>点击"AI生成内容"按钮，使用AI生成文章内容</li>
+                            <li>点击"生成图片"按钮，为文章生成相关图片</li>
+                            <li>点击"排版优化"按钮，自动优化文章排版</li>
+                            <li>在右侧设置区选择要发布的平台、分类和标签</li>
+                            <li>选择合适的AI模型（明亮、暗黑或流量推荐）</li>
+                            <li>点击"发布"按钮，将文章发布到所选平台</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">2. AI检测</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                            <li>在"检测内容"文本框中输入需要检测的内容</li>
+                            <li>点击"全段检测"按钮，对整个内容进行AI检测</li>
+                            <li>点击"分段检测"按钮，对内容进行分段AI检测</li>
+                            <li>点击"从内容管理复制"按钮，复制内容管理中的内容到检测框</li>
+                            <li>查看检测结果，包括AI比例、分段检测结果和同质化检测</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">3. 流量预测</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                            <li>在"文章标题"输入框中输入文章标题</li>
+                            <li>选择要发布的平台（微信公众号、微博或今日头条）</li>
+                            <li>点击"预测流量"按钮，获取流量预测结果</li>
+                            <li>查看预计阅读量、点赞数和评论数</li>
+                            <li>查看流量趋势预测和优化建议</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">4. 综合分析</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                            <li>点击"开始综合检测"按钮，对文章进行全面检测</li>
+                            <li>查看内容逻辑与连贯性检测结果</li>
+                            <li>查看敏感和违规检测结果</li>
+                            <li>查看营销文与广告浓度检测结果</li>
+                            <li>使用"一键优化清单"对文章进行优化</li>
+                            <li>点击"应用全部优化"按钮，自动应用所有优化建议</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">5. 工具集</h3>
+                        <ol class="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                            <li><strong>AI润色：</strong>输入需要润色的内容，选择润色风格，点击"开始润色"按钮</li>
+                            <li><strong>热门文章采集：</strong>输入关键词，选择平台，点击"开始采集"按钮</li>
+                            <li><strong>API接口设置：</strong>输入API密钥和地址，保存设置后可对接自定义AI服务</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">6. 其他功能</h3>
+                        <ul class="list-disc list-inside space-y-2 text-sm text-gray-600">
+                            <li>点击顶部导航栏的月亮图标切换暗黑模式</li>
+                            <li>点击"保存项目"按钮保存当前编辑的内容</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <footer class="bg-white border-t border-gray-200 py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="text-sm text-gray-600">
+                © 2026 自媒体多工作平台
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="open-usage" class="text-sm text-primary hover:underline">
+                    <i class="fa fa-question-circle mr-1"></i> 使用说明
+                </button>
+                <button class="text-sm text-gray-600 hover:text-primary">
+                    <i class="fa fa-gear mr-1"></i> 设置
+                </button>
+                <button class="text-sm text-gray-600 hover:text-primary">
+                    <i class="fa fa-question mr-1"></i> 帮助
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 标签页切换
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('#tab-navigation button');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+
+                    // 移除所有标签页的活动状态
+                    tabs.forEach(t => {
+                        t.classList.remove('border-primary', 'text-primary');
+                        t.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+                        t.setAttribute('aria-selected', 'false');
+                    });
+
+                    // 移除所有内容面板的活动状态
+                    tabPanes.forEach(pane => {
+                        pane.classList.add('hidden');
+                        pane.classList.remove('active');
+                    });
+
+                    // 激活当前标签页和内容面板
+                    tab.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+                    tab.classList.add('border-primary', 'text-primary');
+                    tab.setAttribute('aria-selected', 'true');
+                    document.getElementById(tabId).classList.remove('hidden');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // 主题切换
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark');
+                const icon = themeToggle.querySelector('i');
+                if (icon.classList.contains('fa-moon-o')) {
+                    icon.classList.remove('fa-moon-o');
+                    icon.classList.add('fa-sun-o');
+                } else {
+                    icon.classList.remove('fa-sun-o');
+                    icon.classList.add('fa-moon-o');
+                }
+            });
+
+            // 生成图片预览
+            const generateImageBtn = document.getElementById('generate-image');
+            const imagePreview = document.getElementById('image-preview');
+            const imageGrid = document.getElementById('image-grid');
+
+            generateImageBtn.addEventListener('click', function() {
+                // 清空现有图片
+                imageGrid.innerHTML = '';
+                
+                // 生成示例图片
+                for (let i = 1; i <= 6; i++) {
+                    const imageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20article%20illustration&image_size=square`;
+                    const imageDiv = document.createElement('div');
+                    imageDiv.className = 'aspect-square bg-gray-100 rounded-lg overflow-hidden';
+                    imageDiv.innerHTML = `<img src="${imageUrl}" alt="Generated image ${i}" class="w-full h-full object-cover">`;
+                    imageGrid.appendChild(imageDiv);
+                }
+                
+                // 显示预览区域
+                imagePreview.classList.remove('hidden');
+            });
+
+            // 复制内容
+            const copyFromContentBtn = document.getElementById('copy-from-content');
+            copyFromContentBtn.addEventListener('click', function() {
+                const articleContent = document.getElementById('article-content').value;
+                document.getElementById('detect-content').value = articleContent;
+            });
+
+            // 使用说明模态框
+            const openUsageBtn = document.getElementById('open-usage');
+            const usageModal = document.getElementById('usage-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+
+            openUsageBtn.addEventListener('click', function() {
+                usageModal.classList.remove('hidden');
+            });
+
+            closeModalBtn.addEventListener('click', function() {
+                usageModal.classList.add('hidden');
+            });
+
+            // 点击模态框外部关闭
+            usageModal.addEventListener('click', function(e) {
+                if (e.target === usageModal) {
+                    usageModal.classList.add('hidden');
+                }
+            });
+
+            // 综合检测
+            const comprehensiveAnalysisBtn = document.getElementById('comprehensive-analysis');
+            comprehensiveAnalysisBtn.addEventListener('click', function() {
+                // 模拟检测过程
+                alert('综合检测已完成，结果已更新');
+            });
+
+            // 流量预测
+            const predictTrafficBtn = document.getElementById('predict-traffic');
+            predictTrafficBtn.addEventListener('click', function() {
+                // 模拟预测过程
+                alert('流量预测已完成，结果已更新');
+            });
+        });
+    </script>
+</body>
+</html>
